@@ -1,5 +1,6 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { useIssue } from '../../hooks';
+import { LoadingIcon } from '../../shared/components/LoadingIcon';
 import { IssueComment } from '../components/IssueComment';
 
 const comment1 =
@@ -10,10 +11,11 @@ const comment3 =
 	"What I don't understand is that in `renderWithHooks`, there is the following block:\r\n\r\n```js\r\n// Check if there was a render phase update\r\n  if (didScheduleRenderPhaseUpdateDuringThisPass) {\r\n```\r\n\r\nWhich runs if `setState` was called in render. Then, it calls again component function - but to do so, it resets the `workInProgress` state, including `updateQueue`. IIUC this discards the effects pushed by previous hooks, without flushing them?\r\n\r\nThat's why `useSyncExternalStore` effect to update store value is not run, in that case.\r\n\r\nThe fact that there is code written to manage `setState` calls in render, seem to acknowledge it is a legit use case?\r\n\r\nI must be missing something 😅 how to make sure those effects are run even if component function is called again before end of work?";
 
 export const IssueView = () => {
-	const params = useParams();
-	const { id = '0' } = params;
-
+	const { id = '0' } = useParams();
 	const { issueQuery } = useIssue(+id);
+
+	if (issueQuery.isLoading) return <LoadingIcon />;
+	if (!issueQuery.data) return <Navigate to='/issue/list' />;
 
 	return (
 		<div className='row mb-5'>
@@ -22,11 +24,11 @@ export const IssueView = () => {
 			</div>
 
 			{/* Primer comentario */}
-			<IssueComment body={comment1} />
+			<IssueComment issue={issueQuery.data} />
 
 			{/* Comentario de otros */}
-			<IssueComment body={comment2} />
-			<IssueComment body={comment3} />
+			{/* <IssueComment body={comment2} />
+			<IssueComment body={comment3} /> */}
 		</div>
 	);
 };
