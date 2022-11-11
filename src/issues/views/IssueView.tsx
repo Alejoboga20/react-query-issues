@@ -12,7 +12,7 @@ const comment3 =
 
 export const IssueView = () => {
 	const { id = '0' } = useParams();
-	const { issueQuery } = useIssue(+id);
+	const { issueQuery, commentsQuery } = useIssue(+id);
 
 	if (issueQuery.isLoading) return <LoadingIcon />;
 	if (!issueQuery.data) return <Navigate to='/issue/list' />;
@@ -27,8 +27,10 @@ export const IssueView = () => {
 			<IssueComment issue={issueQuery.data} />
 
 			{/* Comentario de otros */}
-			{/* <IssueComment body={comment2} />
-			<IssueComment body={comment3} /> */}
+			{commentsQuery.isLoading && <LoadingIcon />}
+			{commentsQuery.data?.map((issue) => (
+				<IssueComment key={issue.id} issue={issue} />
+			))}
 		</div>
 	);
 };
