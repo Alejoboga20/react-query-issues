@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { FiInfo, FiMessageSquare, FiCheckCircle } from 'react-icons/fi';
 import { Issue, State } from '../../interface/issue';
-import { getIssueInfo } from '../../hooks/useIssue';
+import { getIssueComments, getIssueInfo } from '../../hooks/useIssue';
 
 export const IssueItem = ({ issue }: IssueItemProps) => {
 	const queryClient = useQueryClient();
@@ -10,6 +10,12 @@ export const IssueItem = ({ issue }: IssueItemProps) => {
 
 	const onMouseEnter = () => {
 		queryClient.prefetchQuery(['issue', issue.number], () => getIssueInfo(issue.number));
+		queryClient.prefetchQuery([
+			'issue',
+			issue.number,
+			'comments',
+			() => getIssueComments(issue.number),
+		]);
 	};
 
 	return (
