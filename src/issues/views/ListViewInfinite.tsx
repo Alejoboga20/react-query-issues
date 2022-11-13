@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { IssueList } from '../components/IssueList';
 import { LabelPicker } from '../components/LabelPicker';
-import { useIssues } from '../../hooks';
+import { useIssuesInfinite } from '../../hooks';
 import { LoadingIcon } from '../../shared/components/LoadingIcon';
 import { State } from '../../interface/issue';
 
 export const ListViewInfinite = () => {
 	const [state, setState] = useState<State>();
 	const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
-	const { issuesQuery, page, nextPage, prevPage } = useIssues({ state, labels: selectedLabels });
+	const { issuesQuery } = useIssuesInfinite({ state, labels: selectedLabels });
 
 	const onLabelChanged = (labelName: string) => {
 		selectedLabels.includes(labelName)
@@ -23,7 +23,7 @@ export const ListViewInfinite = () => {
 					<LoadingIcon />
 				) : (
 					<IssueList
-						issues={issuesQuery.data}
+						issues={issuesQuery.data?.pages.flat() || []}
 						state={state}
 						onStateChanged={(newState) => setState(newState)}
 					/>
