@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { githubApi } from '../api/githubApi';
 import { sleep } from '../helpers/sleep';
@@ -45,12 +45,16 @@ export const useIssues = ({ state, labels }: Args) => {
 		if (page > 1) setPage(page - 1);
 	};
 
+	useEffect(() => {
+		setPage(1);
+	}, [state, labels]);
+
 	return {
 		//Properties
 		issuesQuery,
 
 		//Getter
-		page,
+		page: issuesQuery.isFetching ? 'Loading' : page,
 
 		//Methods
 		nextPage,
