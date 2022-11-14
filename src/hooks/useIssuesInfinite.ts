@@ -13,7 +13,7 @@ interface QueryArgs {
 	queryKey: (string | Args)[];
 }
 
-const getIssues = async ({ pageParam = 1, queryKey }: QueryArgs): Promise<Issue[]> => {
+const getIssues = async ({ queryKey }: QueryArgs): Promise<Issue[]> => {
 	const [, , args] = queryKey;
 	const { state, labels } = args as Args;
 	const params = new URLSearchParams();
@@ -25,7 +25,6 @@ const getIssues = async ({ pageParam = 1, queryKey }: QueryArgs): Promise<Issue[
 		params.append('labels', labelString);
 	}
 
-	params.append('page', pageParam?.toString() || '1');
 	params.append('per_page', '5');
 
 	const { data } = await githubApi.get<Issue[]>('/issues', { params });
@@ -34,8 +33,15 @@ const getIssues = async ({ pageParam = 1, queryKey }: QueryArgs): Promise<Issue[
 };
 
 export const useIssuesInfinite = ({ state, labels }: Args) => {
-	const issuesQuery = useInfiniteQuery(['issues', 'infinite', { state, labels, page: 1 }], (data) =>
-		getIssues(data)
+	const issuesQuery = useInfiniteQuery(
+		['issues', 'infinite', { state, labels }],
+		(data) => getIssues(data),
+		{
+			getNextPageParam: (lastPage, pages) => {
+				if (lastPage.length === 0) return;
+				return pages.length + 1;
+			},
+		}
 	);
 
 	return {
